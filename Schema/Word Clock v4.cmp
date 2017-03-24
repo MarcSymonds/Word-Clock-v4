@@ -1,0 +1,185 @@
+Cmp-Mod V01 Created by Cvpcb (after 2015-mar-04 BZR unknown)-product   date = 12/08/2015 06:55:43
+
+BeginCmp
+TimeStamp = /5595489B;
+Reference = BT1;
+ValeurCmp = Battery;
+IdModule  = w_battery_holders:keystone_1025-7;
+EndCmp
+
+BeginCmp
+TimeStamp = /5594E055;
+Reference = C1;
+ValeurCmp = 47uF;
+IdModule  = Capacitors_ThroughHole:C_Radial_D5_L11_P2.5;
+EndCmp
+
+BeginCmp
+TimeStamp = /55C993F6;
+Reference = C2;
+ValeurCmp = 47uF;
+IdModule  = Capacitors_ThroughHole:C_Radial_D5_L11_P2.5;
+EndCmp
+
+BeginCmp
+TimeStamp = /55C98D08;
+Reference = C3;
+ValeurCmp = 47uF;
+IdModule  = Capacitors_ThroughHole:C_Radial_D5_L11_P2.5;
+EndCmp
+
+BeginCmp
+TimeStamp = /5595AE08;
+Reference = D1;
+ValeurCmp = Led_Small;
+IdModule  = LEDs:LED-3MM;
+EndCmp
+
+BeginCmp
+TimeStamp = /55925BC5;
+Reference = P1;
+ValeurCmp = Board Pwr;
+IdModule  = Pin_Headers:Pin_Header_Angled_1x02;
+EndCmp
+
+BeginCmp
+TimeStamp = /5592815E;
+Reference = P2;
+ValeurCmp = LEDs Top Pwr+Data;
+IdModule  = Pin_Headers:Pin_Header_Angled_1x03;
+EndCmp
+
+BeginCmp
+TimeStamp = /55C9582A;
+Reference = P3;
+ValeurCmp = LEDs Bottom Pwr;
+IdModule  = Pin_Headers:Pin_Header_Angled_1x02;
+EndCmp
+
+BeginCmp
+TimeStamp = /55C70277;
+Reference = P4;
+ValeurCmp = Buttons;
+IdModule  = Pin_Headers:Pin_Header_Angled_1x05;
+EndCmp
+
+BeginCmp
+TimeStamp = /55958F42;
+Reference = P5;
+ValeurCmp = LDR;
+IdModule  = Pin_Headers:Pin_Header_Angled_1x02;
+EndCmp
+
+BeginCmp
+TimeStamp = /559624CA;
+Reference = P6;
+ValeurCmp = DS18B20/TEMP;
+IdModule  = Pin_Headers:Pin_Header_Angled_1x03;
+EndCmp
+
+BeginCmp
+TimeStamp = /55C77658;
+Reference = R1;
+ValeurCmp = 10K;
+IdModule  = Resistors_ThroughHole:Resistor_Horizontal_RM10mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /55C7768F;
+Reference = R2;
+ValeurCmp = 10K;
+IdModule  = Resistors_ThroughHole:Resistor_Horizontal_RM10mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /55C776BF;
+Reference = R3;
+ValeurCmp = 10K;
+IdModule  = Resistors_ThroughHole:Resistor_Horizontal_RM10mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /55C776F8;
+Reference = R4;
+ValeurCmp = 10K;
+IdModule  = Resistors_ThroughHole:Resistor_Horizontal_RM10mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /559579B0;
+Reference = R5;
+ValeurCmp = 6.8K;
+IdModule  = Resistors_ThroughHole:Resistor_Horizontal_RM10mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /55962F8A;
+Reference = R6;
+ValeurCmp = 4.7K;
+IdModule  = Resistors_ThroughHole:Resistor_Horizontal_RM10mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /558FCD90;
+Reference = R7;
+ValeurCmp = 4.7K;
+IdModule  = Resistors_ThroughHole:Resistor_Horizontal_RM10mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /558FCB6D;
+Reference = R8;
+ValeurCmp = 4.7K;
+IdModule  = Resistors_ThroughHole:Resistor_Horizontal_RM10mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /5595AD83;
+Reference = R9;
+ValeurCmp = 5.6K;
+IdModule  = Resistors_ThroughHole:Resistor_Horizontal_RM10mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /5590748B;
+Reference = SP1;
+ValeurCmp = PIEZO;
+IdModule  = Pin_Headers:Pin_Header_Angled_1x02;
+EndCmp
+
+BeginCmp
+TimeStamp = /55C87C78;
+Reference = U1;
+ValeurCmp = MP1584_DCDC_BCM;
+IdModule  = DCDCConverterModules:MP1584_DCDC_BCM;
+EndCmp
+
+BeginCmp
+TimeStamp = /55C8D79D;
+Reference = U2;
+ValeurCmp = MP1584_DCDC_BCM;
+IdModule  = DCDCConverterModules:MP1584_DCDC_BCM;
+EndCmp
+
+BeginCmp
+TimeStamp = /55BA466A;
+Reference = U3;
+ValeurCmp = Arduino_Nano_v3;
+IdModule  = Arduino:Arduino_Nano_v3;
+EndCmp
+
+BeginCmp
+TimeStamp = /5586F152;
+Reference = U4;
+ValeurCmp = DS1307+;
+IdModule  = Housings_DIP:DIP-8_W7.62mm_LongPads;
+EndCmp
+
+BeginCmp
+TimeStamp = /558FD673;
+Reference = Y1;
+ValeurCmp = 32.768KHz;
+IdModule  = Crystals:Crystal_Round_Horizontal_3mm_BigPad;
+EndCmp
+
+EndListe

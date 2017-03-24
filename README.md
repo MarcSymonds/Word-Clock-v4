@@ -8,4 +8,5 @@ This version is a complete redesign and uses and Arduino Nano and WS2812B RGD LE
 To hold the LEDs, I used Wings3D to create a 11x5 frame to hold 55 LEDs (the clock uses 110 LEDs), and printed that on a 3D printer.
 
 ![](docs/ClockDemo300.jpg?raw=true "Clock in test mode")
-![](docs/ClickTime300.jpg?raw=true "Clock showing the current time in words")
+![](docs/ClockTime300.jpg?raw=true "Clock showing the current time in words")
+![](docs/WordClockv4Schema500.png?raw=true "KiCAD Schema")

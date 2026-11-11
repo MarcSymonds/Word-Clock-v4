@@ -4,8 +4,8 @@
 #include "Arduino.h"
 
 #define BUT_DELAY_TIME 750
-#define BUT_REPEAT_TIME 150
-#define BUT_DEBOUNCE_TIME 50
+#define BUT_REPEAT_TIME 300
+#define BUT_DEBOUNCE_TIME 75
 
 enum ButtonIndex:byte
 {
@@ -23,9 +23,10 @@ enum ButtonIndex:byte
 enum ButtonMode:byte
 {
   UNPRESSED = 0,
-  FIRSTPRESS = 1,
-  REPEATING = 2,
-  DEBOUNCE = 3
+  PRESSED = 1,
+  //REPEATING = 2,
+  //DEBOUNCE = 3,
+  DEBOUNCING = 2
 };
 
 class Button
@@ -37,8 +38,13 @@ class Button
     boolean pressed; // Current read state of the button.
     unsigned long nextRepeat; // Time when keypress will repeat.
     ButtonMode mode;
+    unsigned long debounceTime;
+    unsigned long pressedTime;
+    int repeatDelay;
     
     Button();
+
+    void determineButtonState();
 };
 
 class ButtonReader

@@ -1,41 +1,76 @@
+#include "Global.h"
 #include "DirectIO.h"
 #include "Buttons.h"
 
-Button::Button()
-{
+Button::Button() {
   state = false;
   pressed = false;
   mode = UNPRESSED;
   nextRepeat = 0;
+  debounceTime = 0;
 }
 
-ButtonReader::ButtonReader(byte t)
-{
+void Button::determineButtonState() {
+  if (digitalRead(pin) == HIGH) {
+    switch (mode) {
+      case UNPRESSED:
+        mode = DEBOUNCING;
+        debounceTime = millis();
+        break;
+
+      case DEBOUNCING:
+        if (millisPassed(debounceTime) >= BUT_DEBOUNCE_TIME) {
+          mode = PRESSED;
+          state = true;
+          pressed = true;
+
+          pressedTime = millis();
+          repeatDelay = BUT_DELAY_TIME;
+        }
+        break;
+
+      case PRESSED:
+        if (!pressed && millisPassed(pressedTime) >= repeatDelay) {
+          pressed = true;
+          mode = PRESSED;
+
+          pressedTime = millis();
+          repeatDelay = BUT_REPEAT_TIME;
+        }
+        break;
+    }
+  } 
+  else {
+    state = false;
+    pressed = false;
+    mode = UNPRESSED;
+  }
+}
+
+ButtonReader::ButtonReader(byte t) {
   tonePin = t;
-  
+
   buts[BUT_MODE].pin = BUT_MODE_PIN;
   buts[BUT_SETTING].pin = BUT_SETTING_PIN;
   buts[BUT_ADJUST].pin = BUT_ADJUST_PIN;
   buts[BUT_BRIGHTNESS].pin = BUT_BRIGHTNESS_PIN;
-  
-  for (int i = 0; i < 4; i++)
-  {
+
+  for (int i = 0; i < 4; i++) {
     buts[i].xx = 100 + i;
     pinMode(buts[i].pin, INPUT);
   }
-  
+
   pinMode(tonePin, OUTPUT);
 }
-    
-byte ButtonReader::scanButtons()
-{
-  byte i;
-  Button *b;
-  unsigned long t = millis();
 
-  for (i = 0; i < 4; i++)
-  {  
-    b = &buts[i];
+byte ButtonReader::scanButtons() {
+  byte i;
+  //Button *b;
+  //unsigned long t = millis();
+
+  for (i = 0; i < 4; i++) {
+    buts[i].determineButtonState();
+    /*    b = &buts[i];
     if (digitalRead(b->pin) == HIGH)
     {
       if (b->mode == UNPRESSED)
@@ -69,17 +104,16 @@ byte ButtonReader::scanButtons()
       b->mode = UNPRESSED;
       b->pressed = false;
       b->state = false;
-    }
+    }*/
   }
 }
 
 // Destructive read of the button state.
-
-boolean ButtonReader::readButton(ButtonIndex but)
-{
+//
+boolean ButtonReader::readButton(ButtonIndex but) {
   Button *b = &buts[but];
   boolean p;
-  
+
   p = b->pressed;
   b->pressed = false;
 
@@ -89,8 +123,6 @@ boolean ButtonReader::readButton(ButtonIndex but)
   return p;
 }
 
-Button ButtonReader::getButton(ButtonIndex but)
-{
+Button ButtonReader::getButton(ButtonIndex but) {
   return buts[but];
 }
-

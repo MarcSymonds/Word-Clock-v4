@@ -1,13 +1,19 @@
 #include <Arduino.h>
 #include "Global.h"
 
+// Set up LEDs; 110 leds in the display, use pin 4 for sending data, use 800KHz.
+//
 Adafruit_NeoPixel leds = Adafruit_NeoPixel(110, 4, NEO_GRB + NEO_KHZ800);
+
 Colour colours[COLOURCTRLS];
 ColourMode colourMode = CM_SINGLE_USER;
 byte singleColour = 0;
 boolean singleColourWhite = true;
 ButtonReader buttons = ButtonReader(13); // Tone.
+
+
 OneWire oneWire(5);
+
 DallasTemperature tempSens = DallasTemperature(&oneWire);
 float tempC, tempF;
 byte tempColourR;
@@ -16,6 +22,8 @@ boolean tempBackground = true;
 boolean showTempF = true;
 DS1307 rtc;
 RandomMode fadeSpeed = RM_MEDIUM;
+boolean BST = false;
+boolean DLSDelay = false;
 
 byte ledColourRef[55]; // Use 4 bits per pixel to save a bit of mem.
 byte ledColourRefSave[55];
@@ -26,17 +34,14 @@ byte brightness = 255; // 255 = Auto, else 100-0.
 unsigned int lightLevel;
 byte llBrightness = 80;
 
-void clearColourRef(boolean top, boolean bottom, boolean noTemp)
-{
+void clearColourRef(boolean top, boolean bottom, boolean noTemp) {
   byte s, c, r;
   
-  if (top && bottom)
-  {
+  if (top && bottom) {
     s = 0;
     c = 110;
   }
-  else
-  {
+  else {
     s = (top ? 0 : 55);
     c = 55;
   }
@@ -81,8 +86,7 @@ void saveColourRef()
   }
 }
 
-void restoreColourRef()
-{
+void restoreColourRef() {
   if (ledColourRefSaved)
   {
     for (byte i = 0; i < 55; i++)
@@ -90,10 +94,9 @@ void restoreColourRef()
       
     ledColourRefSaved = false;
   }
-}  
+}
 
-void updateDisplay()
-{
+void updateDisplay() {
   byte r;
   int i;
   
@@ -107,6 +110,7 @@ void updateDisplay()
     else if (r < COLOURCTRLS)
       leds.setPixelColor(i, colours[r].getColour());
   }
+  
   leds.show();
 }
 
@@ -117,6 +121,28 @@ unsigned long timeSince(unsigned long time)
   else
     return currMillis - time;
 };
+
+unsigned long microsPassed(unsigned long time) {
+  unsigned long now = micros();
+
+  if (now < time) {
+    return (unsigned long)0xFFFFFFFF - time + now;
+  }
+  else {
+    return now - time;
+  }
+}
+
+unsigned long millisPassed(unsigned long time) {
+  unsigned long now = millis();
+
+  if (now < time) {
+    return (unsigned long)0xFFFFFFFF - time + now;
+  }
+  else {
+    return now - time;
+  }
+}
 
 void setupColour(byte i, boolean dim)
 {
@@ -143,3 +169,4 @@ void setupColour(byte i, boolean dim)
       break;
   }
 }
+

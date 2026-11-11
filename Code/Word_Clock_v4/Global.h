@@ -17,11 +17,13 @@ void saveColourRef();
 void restoreColourRef();
 
 unsigned long timeSince(unsigned long);
+unsigned long microsPassed(unsigned long);
+unsigned long millisPassed(unsigned long);
 void setupColour(byte i, boolean dim);
 void updateDisplay();
 void saveSettings();
 void readTimeAndButtons();
-void readLightAndTemp(boolean);
+void readLightAndTemp(int, int);
 
 enum DisplayMode:byte
 {
@@ -29,7 +31,8 @@ enum DisplayMode:byte
   DM_HM = 1,
   DM_MS = 2,
   DM_TEMP = 3,
-  DM_TEST = 4
+  DM_TEST = 4,
+  DM_FIRE = 5
 };
 
 enum Settings:byte
@@ -73,6 +76,8 @@ extern unsigned int lightLevel;              // Current light level read from LD
 extern byte llBrightness;                    // Brightness level % based on lightLevel. Check readLightAndTemp function in Word_Clock_v4.ini. 15%-80%.
 extern byte brightness;                      // Manual brightness level. If 255, then uses llBrightness.
 extern RandomMode fadeSpeed;
+extern boolean BST;                          // Is the time in BST?
+extern boolean DLSDelay;                     // Are we in delay after changing DLS?
 
 extern unsigned long currMillis;             // Current millis value. Read at the start of loop().
 extern boolean timeReset;                    // Inidcates millis has rolled over since last time read.

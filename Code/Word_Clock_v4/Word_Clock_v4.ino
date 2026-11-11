@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include <BCDUtil.h>
 #include <DallasTemperature.h>
@@ -11,6 +12,7 @@
 #include "DisplayTime.h"
 #include "ChangeSettings.h"
 #include "DirectIO.h"
+#include "Fire.h"
 
 byte lastReadSecond = 99;
 DisplayMode displayMode;
@@ -18,13 +20,23 @@ DisplayMode displayMode;
 unsigned long currMillis;
 boolean timeReset; // millis has rolled over since last read. Happens ~49.7 days.
 
+Fire fire;
+
 void setup() {
-  //Serial.begin(115200);
+  //Serial.begin(9600);
+
+  // Set default Arduino analog reference voltage (5V).
+  //
   analogReference(DEFAULT);
-  
+
+  // Set up the pin used to send data to the LEDs. Note parameters are set in Global.cpp where the leds object is created.
+  //
   leds.begin();
-  
-  Wire.begin(); // Needed for DS1307 RTC.
+
+  // Set up the I2C interface. Needed for DS1307 RTC.
+  //
+  Wire.begin();
+ 
   tempSens.begin();
   tempSens.setResolution(10); // Don't need highest resolution for temperature sensor. Higher resolution = slower reading.
   
@@ -55,7 +67,7 @@ void loop()
   time = currMillis;
   currMillis = millis();
   timeReset = (currMillis < time);
-  
+
   readTimeAndButtons();
   
   if (buttons.readButton(BUT_SETTING))
@@ -91,6 +103,10 @@ void loop()
           displayMode = DM_TEST;
           break;
           
+        case DM_TEST:
+          displayMode = DM_FIRE;
+          break;
+
         default:
           displayMode = DM_WORDS;
           break;
@@ -223,7 +239,7 @@ void loop()
         restoreColourRef();
       }
     }
-    
+
     if (changedSetting == 0)
     {
       if (performFades())
@@ -244,6 +260,16 @@ void loop()
           displayTemp(modeInit, refreshDisplay);
           break;
           
+        case DM_FIRE:
+          if (fire.timeForFrame()) {
+            fire.animate();
+            fire.display();
+          }
+          else if (refreshDisplay) {
+            fire.display();
+          }
+          break;
+
         default:
           displayTest(modeInit, refreshDisplay);
           break;
@@ -252,8 +278,13 @@ void loop()
       modeInit = false;
     }
   }
-  
-  readLightAndTemp(false);
+
+  if (displayMode == DM_FIRE) {
+    readLightAndTemp(0 , -1);
+  }
+  else {
+    readLightAndTemp(0, 0);
+  }
 }
 
 boolean performFades()
@@ -308,31 +339,126 @@ void readTimeAndButtons()
 {
   buttons.scanButtons();
   rtc.readTime();
+
+  checkForDaylightSavings();
 }
 
-void readLightAndTemp(boolean forceLight)
+void checkForDaylightSavings() {
+  byte hour = rtc.getHours(true);
+
+  // Clocks change at 2am, so check then.
+  //
+  if (hour == 2) {
+    // Don't do anything if DLS was just changed.
+    //
+    if (!DLSDelay) {
+      byte month = rtc.getMonth(true);
+      
+      // Only need to check March and October.
+      //
+      if (month == 3 || month == 10) {
+        // Need to figure out when the last Sunday is.
+        //
+        // Get the current day and weekday.
+        //
+        byte day = rtc.getDay(true);
+        byte weekday = rtc.getWeekday();
+
+        // Move to the end of the month, keeping track of the weekday.
+        //
+        byte checkDay = day;
+
+        while (checkDay < 31) {
+          ++weekday;
+
+          if (weekday > 6) {
+            weekday = 0;
+          }
+
+          ++checkDay;
+        }
+
+        // Now go back to the last Sunday.
+        //
+        while (weekday != 6) {
+          --checkDay;
+          --weekday;
+
+          if (weekday < 0) {
+            weekday = 6;
+          }
+        }
+
+        // If the current day is on or after the last Sunday ...
+        //
+        if (day >= checkDay) {
+          // March - switch to BST.
+          //
+          if (month == 3) {
+            if (!BST) {
+              rtc.setHours(hour + 1);
+              rtc.writeTime();
+
+              BST = true;
+              DLSDelay = true;
+              saveSettings();
+            }
+          }
+          // October - switch to GMT.
+          //
+          else if (BST) {
+            rtc.setHours(hour - 1);
+            rtc.writeTime();
+
+            BST = false;
+            DLSDelay = true;
+            saveSettings();
+          }
+        }
+        else {
+          // This 2am is on a day before the last Sunday,
+          // so use this flag to skip further checking for this hour.
+          //
+          DLSDelay = true;
+          saveSettings();
+        }
+      }
+    }
+  }
+  else if (DLSDelay) {
+    DLSDelay = false;
+    saveSettings();
+  }
+}
+
+void readLightAndTemp(int forceLight, int forceTemp)
 {
   boolean secondPast = false;
+  boolean timeUp = false;
   byte val;
   float temp;
   
   val = rtc.getSeconds(true);
+
+
   if (lastReadSecond != val)
   {
     secondPast = true;
     lastReadSecond = val;
+
+    timeUp = (val % 10) == 0;
   }
 
-  if (forceLight || secondPast && (val % 10) == 0)
-  {
-    // Read light level and temp every 10 seconds. These calls are relatively slow.
-
+  if (forceLight > 0 || (timeUp && forceLight == 0)) {
     lightLevel = analogRead(0);
   
-    #define LLB_MIN 30
+    #define LLB_MIN 10
     #define LLB_MAX 80
-    llBrightness = (lightLevel / (1024 / (LLB_MAX - LLB_MIN))) + LLB_MIN;
 
+    llBrightness = (lightLevel / (1024 / (LLB_MAX - LLB_MIN))) + LLB_MIN;
+  }
+
+  if (forceTemp > 0 || (timeUp && forceTemp == 0)) {
     tempSens.requestTemperatures();
 
     temp = tempSens.getTempFByIndex(0);
@@ -371,19 +497,11 @@ void setBackgroundTempColour()
   }
 }
 
-/*float diff(float a, float b)
-{
-  if (a > b)
-    return a - b;
-  else
-    return b - a;
-}*/
-
 // We will use the RAM of the DS1307 to save some of the settings if power is lost.
-
+//
 void saveSettings()
 {
-  byte buf[9];
+  byte buf[10];
   
   buf[0] = 0x55; // Header to indicate what is read back are the settings.
   buf[1] = displayMode;
@@ -394,15 +512,16 @@ void saveSettings()
   buf[6] = tempBackground ? 1 : 0;
   buf[7] = fadeSpeed;
   buf[8] = showTempF ? 1 : 0;
+  buf[9] = (BST ? 1 : 0) + (DLSDelay ? 2 : 0);
   
-  rtc.writeData(DS1307_RAM, buf, 9);
+  rtc.writeData(DS1307_RAM, buf, 10);
 }
 
 void loadSettings()
 {
-  byte buf[9];
+  byte buf[10];
   
-  rtc.readData(DS1307_RAM, buf, 9);
+  rtc.readData(DS1307_RAM, buf, 10);
 
   if (buf[0] == 0x55)
   {
@@ -414,6 +533,7 @@ void loadSettings()
     tempBackground = (buf[6] != 0);
     fadeSpeed = (RandomMode) buf[7];
     showTempF = (buf[8] != 0);
+    BST = (buf[9] & 1 != 0);
+    DLSDelay = (buf[9] & 2 != 0);
   }
 }
-

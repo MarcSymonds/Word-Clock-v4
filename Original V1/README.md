@@ -14,7 +14,6 @@ With the letter stencil over the LEDs. I had the stencil made by a company that 
 ![Stencil](./DSCF1636.JPG)
 
 ![Boxed](./DSCF1639.JPG)
-<<<<<<< HEAD
 
 
 This is my original V1 circuit, built on vero board, and the LED array:-
@@ -30,5 +29,3 @@ I later decided to have a go at making my own circuit board (V2):-
 ![Top](./20261111_105507.jpg)
 
 ![Bottom](./20261111_105545.jpg)
-=======
->>>>>>> 072ef57b02d9d49c0805bff688204f03b0dab738
